@@ -11,16 +11,21 @@
 
 @class SVInfiniteScrollingView;
 
-enum {
+typedef NS_ENUM(NSInteger, SVInfiniteScrollingDirection) {
+    SVInfiniteScrollingDirectionVertical = 0,
     SVInfiniteScrollingDirectionBottom = 0,
-    SVInfiniteScrollingDirectionTop = 1
+    SVInfiniteScrollingDirectionTop = 1,
+    SVInfiniteScrollingDirectionHorizontal = 2,
+    SVInfiniteScrollingDirectionLeft = 2,
+    SVInfiniteScrollingDirectionRight = 3
 };
-
-typedef NSUInteger SVInfiniteScrollingDirection;
 
 @interface UIScrollView (SVInfiniteScrolling)
 
 - (void)addInfiniteScrollingWithActionHandler:(void (^)(void))actionHandler;
+/** 
+@warning If you use SVInfiniteScrollingDirectionTop in UITableView you shouldnt use animation for cells actions (it)
+ */
 - (void)addInfiniteScrollingWithScrollingDiretion:(SVInfiniteScrollingDirection)direction actionHandler:(void (^)(void))actionHandler;
 - (void)triggerInfiniteScrolling;
 

@@ -28,10 +28,10 @@
     [self.tableView addPullToRefreshWithActionHandler:^{
         [weakSelf insertRowAtTop];
     }];
-        
+    
     // setup infinite scrolling
-    [self.tableView addInfiniteScrollingWithActionHandler:^{
-        [weakSelf insertRowAtBottom];
+    [self.tableView addInfiniteScrollingWithScrollingDiretion:SVInfiniteScrollingDirectionLeft actionHandler:^{
+        [weakSelf insertRowAtTop];
     }];
 }
 
@@ -47,6 +47,19 @@
         [self.dataSource addObject:[NSDate dateWithTimeIntervalSinceNow:-(i*90)]];
 }
 
+- (void)insertRowAtTopWithoutAnimation {
+    __weak SVViewController *weakSelf = self;
+    
+    int64_t delayInSeconds = 2.0;
+    dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, delayInSeconds * NSEC_PER_SEC);
+    dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
+        [weakSelf.dataSource insertObject:[NSDate date] atIndex:0];
+        [weakSelf.tableView reloadData];
+        
+        [weakSelf.tableView.infiniteScrollingView stopAnimating];
+    });
+}
+
 - (void)insertRowAtTop {
     __weak SVViewController *weakSelf = self;
 
@@ -59,6 +72,7 @@
         [weakSelf.tableView endUpdates];
         
         [weakSelf.tableView.pullToRefreshView stopAnimating];
+        [weakSelf.tableView.infiniteScrollingView stopAnimating];
     });
 }
 
@@ -75,6 +89,7 @@
         [weakSelf.tableView endUpdates];
         
         [weakSelf.tableView.infiniteScrollingView stopAnimating];
+        [weakSelf.tableView.pullToRefreshView stopAnimating];
     });
 }
 #pragma mark -
