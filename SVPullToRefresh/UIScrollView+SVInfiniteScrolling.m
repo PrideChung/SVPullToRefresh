@@ -107,15 +107,6 @@ UIEdgeInsets scrollViewOriginalContentInsets;
         view.originalRightInset = self.contentInset.right;
         self.infiniteScrollingViewsDictionary[@(direction)] = view;
         [self setShowsInfiniteScrolling:YES atDirection:direction];
-        
-        if(direction == SVInfiniteScrollingDirectionTop){
-            self.contentOffset = CGPointMake(self.contentOffset.x, self.contentOffset.y + SVInfiniteScrollingViewHeight);
-        }
-        else if(direction == SVInfiniteScrollingDirectionLeft){
-            self.contentOffset = CGPointMake(self.contentOffset.x + SVInfiniteScrollingViewWidth, self.contentOffset.y);
-        }
-        
-        NSLog(@"%@", self.infiniteScrollingViewsDictionary);
     }
 }
 
