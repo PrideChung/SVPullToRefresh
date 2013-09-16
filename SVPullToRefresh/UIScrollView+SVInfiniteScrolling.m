@@ -131,14 +131,17 @@ UIEdgeInsets scrollViewOriginalContentInsets;
 
 - (void)setInfiniteScrollingView:(SVInfiniteScrollingView *)infiniteScrollingView {
     [self willChangeValueForKey:@"UIScrollViewInfiniteScrollingView"];
-    objc_setAssociatedObject(self, &UIScrollViewInfiniteScrollingView,
-                             infiniteScrollingView,
-                             OBJC_ASSOCIATION_ASSIGN);
+    if(infiniteScrollingView){
+        self.infiniteScrollingViewsDictionary[@(SVInfiniteScrollingDirectionBottom)] = infiniteScrollingView;
+    }
+    else{
+        [self.infiniteScrollingViewsDictionary removeObjectForKey:@(SVInfiniteScrollingDirectionBottom)];
+    }
     [self didChangeValueForKey:@"UIScrollViewInfiniteScrollingView"];
 }
 
 - (SVInfiniteScrollingView *)infiniteScrollingView {
-    return objc_getAssociatedObject(self, &UIScrollViewInfiniteScrollingView);
+    return self.infiniteScrollingViewsDictionary[@(SVInfiniteScrollingDirectionBottom)];//objc_getAssociatedObject(self, &UIScrollViewInfiniteScrollingView);
 }
 
 - (void)setShowsInfiniteScrolling:(BOOL)showsInfiniteScrolling{
