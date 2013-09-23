@@ -370,11 +370,11 @@ UIEdgeInsets scrollViewOriginalContentInsets;
         else if(couldStop){
             if((contentOffset.y < scrollOffsetThreshold && self.direction == SVInfiniteScrollingDirectionBottom) ||
                (contentOffset.x < scrollOffsetThreshold && self.direction == SVInfiniteScrollingDirectionRight)){
-                self.state = SVInfiniteScrollingStateTriggered;
+                self.state = SVInfiniteScrollingStateStopped;
             }
             else if((contentOffset.y > scrollOffsetThreshold && self.direction == SVInfiniteScrollingDirectionTop) ||
                     (contentOffset.x > scrollOffsetThreshold && self.direction == SVInfiniteScrollingDirectionLeft)){
-                self.state = SVInfiniteScrollingStateTriggered;
+                self.state = SVInfiniteScrollingStateStopped;
             }
         }
     }
