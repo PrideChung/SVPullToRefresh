@@ -48,6 +48,7 @@ static CGFloat const SVInfiniteScrollingViewWidth = 60;
 #pragma mark - UIScrollView (SVInfiniteScrollingView)
 #import <objc/runtime.h>
 
+static int SVInfiniteScrollingViewObservationContext;
 static char UIScrollViewInfiniteScrollingView;
 static char UIScrollViewInfiniteScrollingViewsDictionary;
 UIEdgeInsets scrollViewOriginalContentInsets;
@@ -156,16 +157,16 @@ UIEdgeInsets scrollViewOriginalContentInsets;
     
     if(!showsInfiniteScrolling) {
       if (view.isObserving) {
-        [self removeObserver:view forKeyPath:@"contentOffset"];
-        [self removeObserver:view forKeyPath:@"contentSize"];
+        [self removeObserver:view forKeyPath:@"contentOffset" context:&SVInfiniteScrollingViewObservationContext];
+        [self removeObserver:view forKeyPath:@"contentSize" context:&SVInfiniteScrollingViewObservationContext];
         [view resetScrollViewContentInset];
         view.isObserving = NO;
       }
     }
     else {
       if (!view.isObserving) {
-        [self addObserver:view forKeyPath:@"contentOffset" options:NSKeyValueObservingOptionNew context:nil];
-        [self addObserver:view forKeyPath:@"contentSize" options:NSKeyValueObservingOptionOld context:nil];
+        [self addObserver:view forKeyPath:@"contentOffset" options:NSKeyValueObservingOptionNew context:&SVInfiniteScrollingViewObservationContext];
+        [self addObserver:view forKeyPath:@"contentSize" options:NSKeyValueObservingOptionOld context:&SVInfiniteScrollingViewObservationContext];
         [view setScrollViewContentInsetForInfiniteScrolling];
         view.isObserving = YES;
           
@@ -233,8 +234,8 @@ UIEdgeInsets scrollViewOriginalContentInsets;
         UIScrollView *scrollView = (UIScrollView *)self.superview;
         if (scrollView.showsInfiniteScrolling) {
           if (self.isObserving) {
-            [scrollView removeObserver:self forKeyPath:@"contentOffset"];
-            [scrollView removeObserver:self forKeyPath:@"contentSize"];
+            [scrollView removeObserver:self forKeyPath:@"contentOffset" context:&SVInfiniteScrollingViewObservationContext];
+            [scrollView removeObserver:self forKeyPath:@"contentSize" context:&SVInfiniteScrollingViewObservationContext];
             self.isObserving = NO;
           }
         }
