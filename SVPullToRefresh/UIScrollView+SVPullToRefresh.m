@@ -13,7 +13,7 @@
 //fequalzro() from http://stackoverflow.com/a/1614761/184130
 #define fequalzero(a) (fabs(a) < FLT_EPSILON)
 
-static CGFloat const SVPullToRefreshViewHeight = 60;
+CGFloat const SVPullToRefreshViewHeight = 60;
 static int SVPullToRefreshObservationContext;
 
 @interface SVPullToRefreshArrow : UIView
@@ -140,6 +140,7 @@ static char UIScrollViewPullToRefreshView;
     if(self = [super initWithFrame:frame]) {
         
         // default styling values
+        self.shouldDynamicallyUpdateContentInset = YES;
         self.activityIndicatorViewStyle = UIActivityIndicatorViewStyleGray;
         self.textColor = [UIColor darkGrayColor];
         self.autoresizingMask = UIViewAutoresizingFlexibleWidth;
@@ -305,11 +306,11 @@ static char UIScrollViewPullToRefreshView;
             self.state = SVPullToRefreshStateTriggered;
         else if(contentOffset.y >= scrollOffsetThreshold && self.state != SVPullToRefreshStateStopped)
             self.state = SVPullToRefreshStateStopped;
-    } else {
-//        CGFloat offset = MAX(self.scrollView.contentOffset.y * -1, 0.0f);
-//        offset = MIN(offset, self.originalTopInset + self.bounds.size.height);
-//        UIEdgeInsets contentInset = self.scrollView.contentInset;
-//        self.scrollView.contentInset = UIEdgeInsetsMake(offset, contentInset.left, contentInset.bottom, contentInset.right);
+    } else if(self.shouldDynamicallyUpdateContentInset){
+        CGFloat offset = MAX(self.scrollView.contentOffset.y * -1, 0.0f);
+        offset = MIN(offset, self.originalTopInset + self.bounds.size.height);
+        UIEdgeInsets contentInset = self.scrollView.contentInset;
+        self.scrollView.contentInset = UIEdgeInsetsMake(offset, contentInset.left, contentInset.bottom, contentInset.right);
     }
 }
 

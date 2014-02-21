@@ -10,6 +10,7 @@
 #import <UIKit/UIKit.h>
 #import <AvailabilityMacros.h>
 
+extern CGFloat const SVPullToRefreshViewHeight;
 
 @class SVPullToRefreshView;
 
@@ -40,8 +41,12 @@ typedef NSUInteger SVPullToRefreshState;
 @property (nonatomic, strong, readonly) UILabel *titleLabel;
 @property (nonatomic, strong, readonly) UILabel *subtitleLabel;
 @property (nonatomic, readwrite) UIActivityIndicatorViewStyle activityIndicatorViewStyle;
-
 @property (nonatomic, readonly) SVPullToRefreshState state;
+
+/*!
+ @brief Default value is YES
+ */
+@property (nonatomic, assign) BOOL shouldDynamicallyUpdateContentInset;
 
 - (void)setTitle:(NSString *)title forState:(SVPullToRefreshState)state;
 - (void)setSubtitle:(NSString *)subtitle forState:(SVPullToRefreshState)state;
