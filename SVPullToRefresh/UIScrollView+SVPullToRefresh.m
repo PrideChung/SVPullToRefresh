@@ -46,7 +46,9 @@ static int SVPullToRefreshObservationContext;
 @property(nonatomic, assign) BOOL isObserving;
 
 - (void)resetScrollViewContentInset;
+- (void)resetScrollViewContentInsetAnimated:(BOOL)animated;
 - (void)setScrollViewContentInsetForLoading;
+- (void)setScrollViewContentInsetForLoadingAnimated:(BOOL)animated;
 - (void)setScrollViewContentInset:(UIEdgeInsets)insets;
 - (void)rotateArrow:(float)degrees hide:(BOOL)hide;
 
@@ -73,7 +75,7 @@ static char UIScrollViewPullToRefreshView;
         
         view.originalTopInset = self.contentInset.top;
         self.pullToRefreshView = view;
-        self.showsPullToRefresh = YES;
+        [self setShowsPullToRefresh:YES animated:NO];
     }
 }
 
@@ -94,24 +96,29 @@ static char UIScrollViewPullToRefreshView;
     return objc_getAssociatedObject(self, &UIScrollViewPullToRefreshView);
 }
 
-- (void)setShowsPullToRefresh:(BOOL)showsPullToRefresh {
+- (void)setShowsPullToRefresh:(BOOL)showsPullToRefresh animated:(BOOL)animated
+{
     self.pullToRefreshView.hidden = !showsPullToRefresh;
     
     if(!showsPullToRefresh) {
-      if (self.pullToRefreshView.isObserving) {
-        [self removeObserver:self.pullToRefreshView forKeyPath:@"contentOffset" context:&SVPullToRefreshObservationContext];
-        [self removeObserver:self.pullToRefreshView forKeyPath:@"frame" context:&SVPullToRefreshObservationContext];
-        [self.pullToRefreshView resetScrollViewContentInset];
-        self.pullToRefreshView.isObserving = NO;
-      }
+        if (self.pullToRefreshView.isObserving) {
+            [self removeObserver:self.pullToRefreshView forKeyPath:@"contentOffset" context:&SVPullToRefreshObservationContext];
+            [self removeObserver:self.pullToRefreshView forKeyPath:@"frame" context:&SVPullToRefreshObservationContext];
+            [self.pullToRefreshView resetScrollViewContentInsetAnimated:animated];
+            self.pullToRefreshView.isObserving = NO;
+        }
     }
     else {
-      if (!self.pullToRefreshView.isObserving) {
-        [self addObserver:self.pullToRefreshView forKeyPath:@"contentOffset" options:NSKeyValueObservingOptionNew context:&SVPullToRefreshObservationContext];
-        [self addObserver:self.pullToRefreshView forKeyPath:@"frame" options:NSKeyValueObservingOptionNew context:&SVPullToRefreshObservationContext];
-        self.pullToRefreshView.isObserving = YES;
-      }
+        if (!self.pullToRefreshView.isObserving) {
+            [self addObserver:self.pullToRefreshView forKeyPath:@"contentOffset" options:NSKeyValueObservingOptionNew context:&SVPullToRefreshObservationContext];
+            [self addObserver:self.pullToRefreshView forKeyPath:@"frame" options:NSKeyValueObservingOptionNew context:&SVPullToRefreshObservationContext];
+            self.pullToRefreshView.isObserving = YES;
+        }
     }
+}
+
+- (void)setShowsPullToRefresh:(BOOL)showsPullToRefresh {
+    [self setShowsPullToRefresh:showsPullToRefresh animated:YES];
 }
 
 - (BOOL)showsPullToRefresh {
@@ -264,27 +271,46 @@ static char UIScrollViewPullToRefreshView;
 
 #pragma mark - Scroll View
 
-- (void)resetScrollViewContentInset {
+- (void)resetScrollViewContentInsetAnimated:(BOOL)animated
+{
     UIEdgeInsets currentInsets = self.scrollView.contentInset;
     currentInsets.top = self.originalTopInset;
     [self setScrollViewContentInset:currentInsets];
 }
 
-- (void)setScrollViewContentInsetForLoading {
+- (void)resetScrollViewContentInset {
+    [self resetScrollViewContentInsetAnimated:YES];
+}
+
+- (void)setScrollViewContentInsetForLoadingAnimated:(BOOL)animated
+{
     CGFloat offset = MAX(self.scrollView.contentOffset.y * -1, 0);
     UIEdgeInsets currentInsets = self.scrollView.contentInset;
     currentInsets.top = MIN(offset, self.originalTopInset + self.bounds.size.height);
     [self setScrollViewContentInset:currentInsets];
 }
 
+- (void)setScrollViewContentInsetForLoading {
+    [self setScrollViewContentInsetForLoadingAnimated:YES];
+}
+
+- (void)setScrollViewContentInset:(UIEdgeInsets)contentInset animated:(BOOL)animated{
+    if(animated){
+        [UIView animateWithDuration:0.3
+                              delay:0
+                            options:UIViewAnimationOptionAllowUserInteraction|UIViewAnimationOptionBeginFromCurrentState
+                         animations:^{
+                             self.scrollView.contentInset = contentInset;
+                         }
+                         completion:NULL];
+    }
+    else{
+        self.scrollView.contentInset = contentInset;
+    }
+}
+
 - (void)setScrollViewContentInset:(UIEdgeInsets)contentInset {
-    [UIView animateWithDuration:0.3
-                          delay:0
-                        options:UIViewAnimationOptionAllowUserInteraction|UIViewAnimationOptionBeginFromCurrentState
-                     animations:^{
-                         self.scrollView.contentInset = contentInset;
-                     }
-                     completion:NULL];
+    [self setScrollViewContentInset:contentInset animated:YES];
 }
 
 #pragma mark - Observing
