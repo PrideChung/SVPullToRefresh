@@ -30,6 +30,7 @@ typedef NS_ENUM(NSInteger, SVInfiniteScrollingDirection) {
 - (void)triggerInfiniteScrolling;
 - (SVInfiniteScrollingView *)infiniteScrollingViewAtDirection:(SVInfiniteScrollingDirection)direction;
 - (void)setShowsInfiniteScrolling:(BOOL)showsInfiniteScrolling atDirection:(SVInfiniteScrollingDirection)direction;
+- (void)setShowsInfiniteScrolling:(BOOL)showsInfiniteScrolling atDirection:(SVInfiniteScrollingDirection)direction animated:(BOOL)animated;
 
 @property (nonatomic, strong, readonly) SVInfiniteScrollingView *infiniteScrollingView;
 @property (nonatomic, assign) BOOL showsInfiniteScrolling;
