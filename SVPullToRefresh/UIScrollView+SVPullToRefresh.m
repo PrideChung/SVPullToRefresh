@@ -147,7 +147,8 @@ static char UIScrollViewPullToRefreshView;
     if(self = [super initWithFrame:frame]) {
         
         // default styling values
-        self.shouldDynamicallyUpdateContentInset = YES;
+        self.dynamicallyUpdateContentInset = YES;
+        self.changeContentInsetForLoading = YES;
         self.activityIndicatorViewStyle = UIActivityIndicatorViewStyleGray;
         self.textColor = [UIColor darkGrayColor];
         self.autoresizingMask = UIViewAutoresizingFlexibleWidth;
@@ -155,28 +156,28 @@ static char UIScrollViewPullToRefreshView;
         self.showsDateLabel = NO;
         
         self.titles = [NSMutableArray arrayWithObjects:NSLocalizedString(@"Pull to refresh...",),
-                                                       NSLocalizedString(@"Release to refresh...",),
-                                                       NSLocalizedString(@"Loading...",),
-                                                       nil];
+                       NSLocalizedString(@"Release to refresh...",),
+                       NSLocalizedString(@"Loading...",),
+                       nil];
         
         self.subtitles = [NSMutableArray arrayWithObjects:@"", @"", @"", @"", nil];
         self.viewForState = [NSMutableArray arrayWithObjects:@"", @"", @"", @"", nil];
     }
-
+    
     return self;
 }
 
-- (void)willMoveToSuperview:(UIView *)newSuperview { 
+- (void)willMoveToSuperview:(UIView *)newSuperview {
     if (self.superview && newSuperview == nil) {
         //use self.superview, not self.scrollView. Why self.scrollView == nil here?
         UIScrollView *scrollView = (UIScrollView *)self.superview;
         if (scrollView.showsPullToRefresh) {
-          if (self.isObserving) {
-            //If enter this branch, it is the moment just before "SVPullToRefreshView's dealloc", so remove observer here
-            [scrollView removeObserver:self forKeyPath:@"contentOffset"];
-            [scrollView removeObserver:self forKeyPath:@"frame"];
-            self.isObserving = NO;
-          }
+            if (self.isObserving) {
+                //If enter this branch, it is the moment just before "SVPullToRefreshView's dealloc", so remove observer here
+                [scrollView removeObserver:self forKeyPath:@"contentOffset"];
+                [scrollView removeObserver:self forKeyPath:@"frame"];
+                self.isObserving = NO;
+            }
         }
     }
 }
@@ -315,7 +316,7 @@ static char UIScrollViewPullToRefreshView;
 
 #pragma mark - Observing
 
-- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context {    
+- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context {
     if([keyPath isEqualToString:@"contentOffset"])
         [self scrollViewDidScroll:[[change valueForKey:NSKeyValueChangeNewKey] CGPointValue]];
     else if([keyPath isEqualToString:@"frame"])
@@ -332,7 +333,7 @@ static char UIScrollViewPullToRefreshView;
             self.state = SVPullToRefreshStateTriggered;
         else if(contentOffset.y >= scrollOffsetThreshold && self.state != SVPullToRefreshStateStopped)
             self.state = SVPullToRefreshStateStopped;
-    } else if(self.shouldDynamicallyUpdateContentInset){
+    } else if(self.isDynamicallyUpdateContentInset){
         CGFloat offset = MAX(self.scrollView.contentOffset.y * -1, 0.0f);
         offset = MIN(offset, self.originalTopInset + self.bounds.size.height);
         UIEdgeInsets contentInset = self.scrollView.contentInset;
@@ -517,8 +518,9 @@ static char UIScrollViewPullToRefreshView;
             break;
             
         case SVPullToRefreshStateLoading:
-            [self setScrollViewContentInsetForLoading];
-            
+            if(self.isChangeContentInsetForLoading){
+                [self setScrollViewContentInsetForLoading];
+            }
             if(previousState == SVPullToRefreshStateTriggered && pullToRefreshActionHandler)
                 pullToRefreshActionHandler();
             

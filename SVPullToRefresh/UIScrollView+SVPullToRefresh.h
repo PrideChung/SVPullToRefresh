@@ -46,7 +46,8 @@ typedef NSUInteger SVPullToRefreshState;
 /*!
  @brief Default value is YES
  */
-@property (nonatomic, assign) BOOL shouldDynamicallyUpdateContentInset;
+@property (nonatomic, assign, getter = isDynamicallyUpdateContentInset) BOOL dynamicallyUpdateContentInset;
+@property (nonatomic, assign, getter = isChangeContentInsetForLoading) BOOL changeContentInsetForLoading;
 
 - (void)setTitle:(NSString *)title forState:(SVPullToRefreshState)state;
 - (void)setSubtitle:(NSString *)subtitle forState:(SVPullToRefreshState)state;
