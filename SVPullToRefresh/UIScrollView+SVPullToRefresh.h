@@ -42,6 +42,7 @@ typedef NSUInteger SVPullToRefreshState;
 @property (nonatomic, strong, readonly) UILabel *subtitleLabel;
 @property (nonatomic, readwrite) UIActivityIndicatorViewStyle activityIndicatorViewStyle;
 @property (nonatomic, readonly) SVPullToRefreshState state;
+@property (nonatomic, assign) CGFloat triggerOffset;
 
 /*!
  @brief Default value is YES
