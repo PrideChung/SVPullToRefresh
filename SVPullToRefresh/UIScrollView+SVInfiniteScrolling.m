@@ -32,6 +32,7 @@ static CGFloat const SVInfiniteScrollingViewHeight = 60;
 @property (nonatomic, readwrite) CGFloat originalBottomInset;
 @property (nonatomic, assign) BOOL wasTriggeredByUser;
 @property (nonatomic, assign) BOOL isObserving;
+@property (nonatomic) CGFloat lastContentOffsetY;
 
 - (void)resetScrollViewContentInset;
 - (void)setScrollViewContentInsetForInfiniteScrolling;
@@ -182,10 +183,21 @@ UIEdgeInsets scrollViewOriginalContentInsets;
 
 #pragma mark - Observing
 
-- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context {    
-    if([keyPath isEqualToString:@"contentOffset"])
+- (void)setLastContentOffsetY:(CGFloat)lastContentOffsetY
+{
+    _lastContentOffsetY = lastContentOffsetY >= 0 ? lastContentOffsetY : 0;
+}
+
+- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context {
+    if([keyPath isEqualToString:@"contentOffset"]) {
         [self scrollViewDidScroll:[[change valueForKey:NSKeyValueChangeNewKey] CGPointValue]];
+    }
     else if([keyPath isEqualToString:@"contentSize"]) {
+        CGPoint currentContentOffset = self.scrollView.contentOffset;
+        if (currentContentOffset.y < self.lastContentOffsetY) {
+            self.lastContentOffsetY = currentContentOffset.y;
+        }
+        
         [self layoutSubviews];
         self.frame = CGRectMake(0, self.scrollView.contentSize.height, self.bounds.size.width, SVInfiniteScrollingViewHeight);
     }
@@ -198,8 +210,16 @@ UIEdgeInsets scrollViewOriginalContentInsets;
         
         if(!self.scrollView.isDragging && self.state == SVInfiniteScrollingStateTriggered)
             self.state = SVInfiniteScrollingStateLoading;
-        else if(contentOffset.y > scrollOffsetThreshold && self.state == SVInfiniteScrollingStateStopped && self.scrollView.isDragging)
-            self.state = SVInfiniteScrollingStateTriggered;
+        else if(contentOffset.y > scrollOffsetThreshold && self.state == SVInfiniteScrollingStateStopped && self.scrollView.isDragging) {
+            
+            if (!self.lastContentOffsetY) {
+                self.lastContentOffsetY = contentOffset.y;
+            }
+            else if (self.lastContentOffsetY < contentOffset.y) {
+                self.lastContentOffsetY = contentOffset.y;
+                self.state = SVInfiniteScrollingStateTriggered;
+            }
+        }
         else if(contentOffset.y < scrollOffsetThreshold  && self.state != SVInfiniteScrollingStateStopped)
             self.state = SVInfiniteScrollingStateStopped;
     }
