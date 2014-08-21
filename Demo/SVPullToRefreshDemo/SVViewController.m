@@ -25,12 +25,16 @@
     __weak SVViewController *weakSelf = self;
     
     // setup pull-to-refresh
-    [self.tableView addPullToRefreshWithActionHandler:^{
+//    [self.tableView addPullToRefreshWithActionHandler:^{
+//        [weakSelf insertRowAtTop];
+//    }];
+//    
+    // setup infinite scrolling
+    [self.tableView addInfiniteScrollingWithScrollingDiretion:SVInfiniteScrollingDirectionTop actionHandler:^{
         [weakSelf insertRowAtTop];
     }];
-        
-    // setup infinite scrolling
-    [self.tableView addInfiniteScrollingWithActionHandler:^{
+    
+    [self.tableView addInfiniteScrollingWithScrollingDiretion:SVInfiniteScrollingDirectionBottom actionHandler:^{
         [weakSelf insertRowAtBottom];
     }];
 }
@@ -47,6 +51,19 @@
         [self.dataSource addObject:[NSDate dateWithTimeIntervalSinceNow:-(i*90)]];
 }
 
+- (void)insertRowAtTopWithoutAnimation {
+    __weak SVViewController *weakSelf = self;
+    
+    int64_t delayInSeconds = 2.0;
+    dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, delayInSeconds * NSEC_PER_SEC);
+    dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
+        [weakSelf.dataSource insertObject:[NSDate date] atIndex:0];
+        [weakSelf.tableView reloadData];
+        
+        [[weakSelf.tableView infiniteScrollingViewAtDirection:SVInfiniteScrollingDirectionTop] stopAnimating];
+    });
+}
+
 - (void)insertRowAtTop {
     __weak SVViewController *weakSelf = self;
 
@@ -59,6 +76,7 @@
         [weakSelf.tableView endUpdates];
         
         [weakSelf.tableView.pullToRefreshView stopAnimating];
+        [[weakSelf.tableView infiniteScrollingViewAtDirection:SVInfiniteScrollingDirectionTop]stopAnimating];
     });
 }
 
@@ -74,7 +92,8 @@
         [weakSelf.tableView insertRowsAtIndexPaths:@[[NSIndexPath indexPathForRow:weakSelf.dataSource.count-1 inSection:0]] withRowAnimation:UITableViewRowAnimationTop];
         [weakSelf.tableView endUpdates];
         
-        [weakSelf.tableView.infiniteScrollingView stopAnimating];
+        [[weakSelf.tableView infiniteScrollingViewAtDirection:SVInfiniteScrollingDirectionBottom] stopAnimating];
+        [weakSelf.tableView.pullToRefreshView stopAnimating];
     });
 }
 #pragma mark -

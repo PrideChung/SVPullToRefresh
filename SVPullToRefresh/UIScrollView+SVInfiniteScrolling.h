@@ -11,10 +11,26 @@
 
 @class SVInfiniteScrollingView;
 
+typedef NS_ENUM(NSInteger, SVInfiniteScrollingDirection) {
+    SVInfiniteScrollingDirectionVertical = 0,
+    SVInfiniteScrollingDirectionBottom = 0,
+    SVInfiniteScrollingDirectionTop = 1,
+    SVInfiniteScrollingDirectionHorizontal = 2,
+    SVInfiniteScrollingDirectionLeft = 2,
+    SVInfiniteScrollingDirectionRight = 3
+};
+
 @interface UIScrollView (SVInfiniteScrolling)
 
 - (void)addInfiniteScrollingWithActionHandler:(void (^)(void))actionHandler;
+/** 
+@warning If you use SVInfiniteScrollingDirectionTop in UITableView you shouldnt use animation for cells actions (it)
+ */
+- (void)addInfiniteScrollingWithScrollingDiretion:(SVInfiniteScrollingDirection)direction actionHandler:(void (^)(void))actionHandler;
 - (void)triggerInfiniteScrolling;
+- (SVInfiniteScrollingView *)infiniteScrollingViewAtDirection:(SVInfiniteScrollingDirection)direction;
+- (void)setShowsInfiniteScrolling:(BOOL)showsInfiniteScrolling atDirection:(SVInfiniteScrollingDirection)direction;
+- (void)setShowsInfiniteScrolling:(BOOL)showsInfiniteScrolling atDirection:(SVInfiniteScrollingDirection)direction animated:(BOOL)animated;
 
 @property (nonatomic, strong, readonly) SVInfiniteScrollingView *infiniteScrollingView;
 @property (nonatomic, assign) BOOL showsInfiniteScrolling;
@@ -35,6 +51,7 @@ typedef NSUInteger SVInfiniteScrollingState;
 
 @property (nonatomic, readwrite) UIActivityIndicatorViewStyle activityIndicatorViewStyle;
 @property (nonatomic, readonly) SVInfiniteScrollingState state;
+@property (nonatomic, readonly) SVInfiniteScrollingDirection direction;
 @property (nonatomic, readwrite) BOOL enabled;
 
 - (void)setCustomView:(UIView *)view forState:(SVInfiniteScrollingState)state;

@@ -10,6 +10,7 @@
 #import <UIKit/UIKit.h>
 #import <AvailabilityMacros.h>
 
+extern CGFloat const SVPullToRefreshViewHeight;
 
 @class SVPullToRefreshView;
 
@@ -45,9 +46,14 @@ typedef NS_ENUM(NSUInteger, SVPullToRefreshState) {
 @property (nonatomic, strong, readonly) UILabel *subtitleLabel;
 @property (nonatomic, strong, readwrite) UIColor *activityIndicatorViewColor NS_AVAILABLE_IOS(5_0);
 @property (nonatomic, readwrite) UIActivityIndicatorViewStyle activityIndicatorViewStyle;
-
 @property (nonatomic, readonly) SVPullToRefreshState state;
-@property (nonatomic, readonly) SVPullToRefreshPosition position;
+@property (nonatomic, assign) CGFloat triggerOffset;
+
+/*!
+ @brief Default value is YES
+ */
+@property (nonatomic, assign, getter = isDynamicallyUpdateContentInset) BOOL dynamicallyUpdateContentInset;
+@property (nonatomic, assign, getter = isChangeContentInsetForLoading) BOOL changeContentInsetForLoading;
 
 - (void)setTitle:(NSString *)title forState:(SVPullToRefreshState)state;
 - (void)setSubtitle:(NSString *)subtitle forState:(SVPullToRefreshState)state;
